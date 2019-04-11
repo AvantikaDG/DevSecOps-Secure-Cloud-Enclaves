@@ -13,12 +13,12 @@ Setting up such an environment, with all of these features to ensure security, w
 
 ## Users/Personas Of The Project
 The users of the project would be:
-* __Mission owner__- Admin to the project system from the customer’s side, who would control access and security of other customer users. The mission owner would control the customer user access levels.
+* __Mission owner__- Admin to the project system from the customer’s side, who would control access and security of other customer users. The mission owner would control the customer user access levels. 
 * __General users__- People with access to the data involved with the project.
-* __Support users__- Users from Jackpine technologies organization, who would control the updates and maintenance of the CONS3RT software. 
-* __MOC (Massachusetts Open Cloud) admin__ - MOC admin would provide resources required for the project and would allocate space for the project over the MOC.
+* __Support users__- Users from Jackpine technologies organization, who would control the updates and maintenance of the CONS3RT software.  These users would provide us with access to the CONS3RT software, and enable us to access the MOC through CONS3RT.
+* __MOC (Massachusetts Open Cloud) admin__ - MOC admin would provide resources required for the project and would allocate space for the project over the MOC. We would receive access to resources such as Ceph storage through the MOC admin.
 * __Open source developers’ community__ - Since the project is open source, open source developers can contribute to it to enhance the features of the project and to add more functionalities to it.
-* __Regulatory agencies__- Agencies that oversee, audit and accredit service providers.
+* __Regulatory agencies__- Agencies that oversee, audit and accredit service providers. The Department of Defense, for an instance, is one such regulatory agency, which imposes a 60-day maximum password lifetime restriction on the users of the system.
 
 ## Scope
 “DevSecOps: Secure Cloud Enclaves” aims to provide a solution that automates building of secure enclaves within the Massachusetts Open Cloud. In terms of compliance, this shall include, but not be limited to the FedRAMP Moderate/DoD Impact Level 2 security specifications as the immediate goal, with a vision to extend this for Impact Level 4 in the future.
@@ -77,9 +77,9 @@ Currently CONS3RT’s functionality in an OpenStack environment is limited to se
 __Design Implications and Discussion:__
 
 * __Scripting:__ The scripting aspect of the project is flexible, in that the necessity of automation is paramount while the language it is written in is not. Most likely the scripting will be done in either Python, bash, or powershell. In the final stages of the product, if all key goals are met, the scripts will be converted into Java workflows so that they can be productionalized as a part of CONS3RT.
-* __Object Storage:__ To include an object storage feature, the OpenStack Swift Object Storage API will be used. This platform is already built to function in an OpenStack environment. The platform is also flexible in that it allows scripting in a variety of programming languages. In addition, it offers object encryption and versioning which are among our security standards. Another consideration was GlusterFS, but the OpenStack Object storage API seemed the better option for ease of use and capability.
-* __Logging:__ For logging the two main considerations were FluentD and Logstash. Logstash is easier to configure and procedural in nature, but needs to be deployed along with another caching tool, Redis, to ensure reliability. As the main focus of the project is reliable security, the better option is thus FluentD, which is the more reliable logging platform but initially harder to configure.
-* __Accounts and Credentials:__ The rotation and changing of accounts and credentials, as well as controlling access to various functions in the cloud allocation will be done using both functionality from the CONS3RT service and the OpenStack Keystone Identity API.
+* __Object Storage:__ To include an object storage feature, the OpenStack Swift Object Storage API will be used. This platform is already built to function in an OpenStack environment. The platform is also flexible in that it allows scripting in a variety of programming languages. In addition, it offers object encryption and versioning which are among our security standards. Another consideration was GlusterFS, but the OpenStack Object storage API seemed the better option for ease of use and capability. . Since the MOC is compatible with Ceph storage, the underlying object storage features will be Ceph. Our goal is to use the S3 API provided by Ceph to allow the creation of buckets.
+* __Logging:__ For logging we are working with Filebeat and Logstash, two components that belong to the ELK-stack pipeline. Filebeat plays the role of a logging agent — it collects log data from critical log files and forwards the data to Logstash. Logstash, further filters the logs received from Filebeat. We intend to use Logstash to filter the logs collected by Filebeat and forward them to one of our buckets.
+* __Accounts and Credentials:__ The rotation and changing of accounts and credentials, as well as controlling access to various functions in the cloud allocation will be done using both functionality from the CONS3RT service and the OpenStack Keystone Identity API. 
 * __Key Management Service:__ OpenStack has some suggested software to deal with encryption and key management. Barbican, the OpenStack Key Manager service, will be used for volume encryption by generating and storing keys. An open-source Key Management Interoperability Protocol, PyKMIP library, to define message formats for the manipulation of keys.
 
 ## Acceptance Criteria
@@ -105,18 +105,26 @@ https://tree.taiga.io/project/bowenislandsong-devsecops-secure-cloud-enclaves/ta
   * Begin to verify Tenable as a validation tool
   * Begin to configure object storage
 2. __Sprint 2: February 21 - March 7__
- * Finish Object Storage
+ * Learning how to implement secure buckets
     * Creation of Buckets
     * Securing of Buckets
       * Disable Public Read/Write
       * Allow only SSL Requests
       * Object Versioning
-3. __Sprint 3: March 7 - March 21__
+ * Using the S3 API to access MOC Ceph
+      * Create buckets
+      * Enable read/write to buckets
+ * Configure console access to our MOC Account   
+3. __Sprint 3: March 7 - March 28__
+  * Write Scripts to automate Object storage processes
   * Start Logging
-    * Create dedicated bucket for 8ogs
-    * Enable object level and server access logging
+    * Configure Logging
+      * OS Level Events
+      * Services on the VM
+      * Object Level Logging
 4. __Sprint 4: March 28 - April 11__
   * Finish Logging
+    * Script Logging Configuration and Deployment on a VM
     * Enable validation of log files
   * Accounts and Credentials
     * 60-Day password rotation
@@ -128,6 +136,19 @@ https://tree.taiga.io/project/bowenislandsong-devsecops-secure-cloud-enclaves/ta
 6. __Final Demo Sprint: April 25 - May 7__
   * Finished product
   * Stretch goals (time permitting)
+    * Key Management and Encryption
+    * Java workflows
+  
+  ## Our mentors
+* Peter Walsh ([peter.walsh@jackpinetech.com](peter.walsh@jackpinetech.com))
+* Joe Yennaco ([joe.yennaco@jackpinetech.com](joe.yennaco@jackpinetech.com))
+
+## Contributors
+* Avantika Dasgupta ([avandg@bu.edu](avandg@bu.edu))
+* Ethan Mcllhenny ([epm11@bu.edu](epm11@bu.edu))
+* Josh Manning ([joshe@bu.edu](joshe@bu.edu))
+* Dharmit Dalvi ([dharmit@bu.edu](dharmit@bu.edu))
+
 
 ## Sources and References
 ===================
@@ -141,3 +162,9 @@ https://www.tenable.com/products/tenable-io
 (https://www.comtech-networking.com/blog/item/303-a-firewall-isn-t-enough-protecting-yourself-against-the-threats-you-can-t-see/)
 (https://www.owasp.org/index.php/Logging_Cheat_Sheet#Introduction)
 (https://security.berkeley.edu/security-audit-logging-guideline)
+5. Introduction to Logstash
+(https://www.elastic.co/guide/en/logstash/current/introduction.html)
+6. Working with Filebeat modules
+(https://www.elastic.co/guide/en/logstash/current/filebeat-modules.html)
+7. MOC Elasticsearch tutorial
+(https://docs.massopen.cloud/en/latest/elk/Elasticsearch.html)
